@@ -2,14 +2,11 @@
 import os
 import secrets
 import hashlib
-import smtplib
 import sqlite3
 import time
-import ssl
+import requests
 
-from email.message import EmailMessage
 from functools import wraps
-
 from flask import (
     Flask,
     render_template,
@@ -22,7 +19,7 @@ from flask import (
 from werkzeug.security import generate_password_hash, check_password_hash
 from dotenv import load_dotenv
 
-# Load environment variables from .env in this project directory
+# Load environment variables from .env
 load_dotenv()
 
 app = Flask(__name__)
@@ -30,6 +27,7 @@ app.secret_key = os.getenv(
     "FLASK_SECRET_KEY",
     "CHANGE-THIS-TO-A-LONG-RANDOM-SECRET",
 )
+
 DB_PATH = os.getenv("DATABASE_PATH", "shieldgate.db")
 
 OTP_TTL_SECONDS = 300
@@ -70,35 +68,54 @@ def otp_digest(code, salt):
 
 
 def send_otp_email(recipient, otp):
-    sender = os.getenv("GMAIL_ADDRESS", "").strip()
-    app_password = os.getenv(
-        "GMAIL_APP_PASSWORD", ""
-    ).replace(" ", "").strip()
+    api_key = os.getenv("RESEND_API_KEY", "").strip()
+    sender = os.getenv("RESEND_FROM_EMAIL", "").strip()
 
-    if not sender or not app_password:
+    if not api_key:
         raise RuntimeError(
-            "GMAIL_ADDRESS and GMAIL_APP_PASSWORD must be configured in .env."
+            "RESEND_API_KEY is not configured."
         )
 
-    message = EmailMessage()
-    message["Subject"] = "Your ShieldGate login verification code"
-    message["From"] = sender
-    message["To"] = recipient
-    message.set_content(
-        f"Your ShieldGate verification code is: {otp}\n\n"
-        "This code expires in 5 minutes. Do not share it with anyone.\n"
-        "If you did not try to sign in, you can ignore this email."
+    if not sender:
+        raise RuntimeError(
+            "RESEND_FROM_EMAIL is not configured."
+        )
+
+    payload = {
+        "from": sender,
+        "to": [recipient],
+        "subject": "Your ShieldGate login verification code",
+        "text": (
+            f"Your ShieldGate verification code is: {otp}\n\n"
+            "This code expires in 5 minutes. "
+            "Do not share it with anyone.\n"
+            "If you did not try to sign in, "
+            "you can ignore this email."
+        ),
+    }
+
+    response = requests.post(
+        "https://api.resend.com/emails",
+        headers={
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+        },
+        json=payload,
+        timeout=15,
     )
 
-    
-    # Gmail SMTP using STARTTLS on port 587
-    with smtplib.SMTP("smtp.gmail.com", 587, timeout=30) as smtp:
-        smtp.ehlo()
-        smtp.starttls(context=ssl.create_default_context())
-        smtp.ehlo()
-        smtp.login(sender, app_password)
-        smtp.send_message(message)
+    if not response.ok:
+        app.logger.error(
+            "Resend API error: status=%s response=%s",
+            response.status_code,
+            response.text[:1000],
+        )
+        raise RuntimeError(
+            f"Email API request failed with status "
+            f"{response.status_code}."
+        )
 
+    app.logger.info("OTP email accepted by Resend API.")
 
 
 # -------------------- LOGIN PROTECTION --------------------
@@ -109,6 +126,7 @@ def login_required(view):
         if not session.get("user_id"):
             flash("Please log in first.", "warning")
             return redirect(url_for("login"))
+
         return view(*args, **kwargs)
 
     return wrapped
@@ -202,7 +220,7 @@ def login():
             app.logger.exception("Unable to send login OTP")
             flash(
                 "Could not send the OTP email. "
-                "Check the Gmail settings in .env and the server log.",
+                "Check the Resend API settings and server logs.",
                 "danger",
             )
             return render_template("login.html")
@@ -211,7 +229,9 @@ def login():
         session["pending_user_id"] = user["id"]
         session["otp_hash"] = otp_digest(code, salt)
         session["otp_salt"] = salt
-        session["otp_expires"] = int(time.time()) + OTP_TTL_SECONDS
+        session["otp_expires"] = (
+            int(time.time()) + OTP_TTL_SECONDS
+        )
         session["otp_attempts"] = 0
 
         flash(
@@ -234,7 +254,8 @@ def verify_otp():
         if int(time.time()) > session.get("otp_expires", 0):
             session.clear()
             flash(
-                "The OTP expired. Please log in again to request a new code.",
+                "The OTP expired. Please log in again "
+                "to request a new code.",
                 "warning",
             )
             return redirect(url_for("login"))
