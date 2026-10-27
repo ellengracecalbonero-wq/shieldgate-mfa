@@ -1,0 +1,4 @@
+{% extends "base.html" %}{% block title %}Verify OTP | ShieldGate{% endblock %}
+{% block content %}<section class="verify-wrap"><div class="verify-symbol">✉</div><div class="eyebrow">STEP 2 OF 2</div><h1>Check your inbox.</h1><p class="muted">We sent a six-digit verification code to the email address on your account. Enter it below to complete sign-in.</p>
+<form method="post" class="otp-form"><label for="otp">Verification code</label><input id="otp" name="otp" class="otp-input" inputmode="numeric" pattern="[0-9]{6}" minlength="6" maxlength="6" placeholder="000000" autocomplete="one-time-code" required autofocus><small>For your security, this code expires in 5 minutes.</small><button class="btn primary full" type="submit">Verify and log in <span>→</span></button></form>
+<a class="back-link" href="{{ url_for('login') }}">← Back to login</a></section>{% endblock %}

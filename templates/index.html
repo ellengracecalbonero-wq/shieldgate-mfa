@@ -1,0 +1,19 @@
+{% extends "base.html" %}{% block title %}ShieldGate | Secure sign in{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="hero-copy"><div class="eyebrow"><span class="pulse"></span> TWO-STEP ACCOUNT SECURITY</div>
+    <h1>One password.<br><span>One more layer.</span></h1>
+    <p>ShieldGate demonstrates Multi-Factor Authentication (MFA) for a distributed web application. After your password is verified, a one-time code is sent to your email.</p>
+    <div class="hero-actions"><a class="btn primary" href="{{ url_for('login') }}">Log in securely <span>→</span></a><a class="btn secondary" href="{{ url_for('register') }}">Create an account</a></div>
+    <div class="trust-row"><span>✓ Password hashing</span><span>✓ 6-digit email OTP</span><span>✓ 5-minute expiry</span></div>
+  </div>
+  <div class="security-card"><div class="card-top"><span class="shield">◆</span><span class="status">SECURITY CHECK</span><span class="dots">•••</span></div>
+    <div class="lock-art"><div class="lock-ring"><div class="lock">▣</div></div></div>
+    <h3>Verify it’s really you</h3><p class="muted">Two independent steps help protect your account.</p>
+    <div class="step"><span class="step-num done">01</span><div><b>Something you know</b><small>Email and password</small></div><span class="check">✓</span></div>
+    <div class="step"><span class="step-num">02</span><div><b>Access to your email</b><small>One-time verification code</small></div><span class="step-arrow">→</span></div>
+    <div class="card-foot"><span class="tiny-dot"></span> Secure access flow enabled</div>
+  </div>
+</section>
+<section class="feature-grid"><article><span>01</span><h3>Authenticate</h3><p>Validate the account credentials against the stored password hash.</p></article><article><span>02</span><h3>Deliver OTP</h3><p>Send a randomly generated six-digit code through Gmail SMTP.</p></article><article><span>03</span><h3>Verify</h3><p>Expire codes after five minutes and limit incorrect attempts.</p></article></section>
+{% endblock %}

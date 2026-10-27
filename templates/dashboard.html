@@ -1,0 +1,4 @@
+{% extends "base.html" %}{% block title %}Dashboard | ShieldGate{% endblock %}
+{% block content %}<section class="dashboard"><div class="success-mark">✓</div><div class="eyebrow">IDENTITY VERIFIED</div><h1>You’re securely signed in.</h1><p class="muted">Both authentication steps have been completed successfully.</p><div class="profile-box"><div class="avatar">{{ user["name"][:1]|upper }}</div><div><b>{{ user["name"] }}</b><small>{{ user["email"] }}</small></div><span class="verified">Verified ✓</span></div>
+<div class="dashboard-grid"><article><span class="metric">02</span><b>Authentication factors</b><small>Password + email OTP</small></article><article><span class="metric">05 <small>min</small></span><b>OTP validity</b><small>One-time code expiration</small></article></div>
+<form method="post" action="{{ url_for('logout') }}"><button class="btn secondary" type="submit">Log out securely</button></form></section>{% endblock %}

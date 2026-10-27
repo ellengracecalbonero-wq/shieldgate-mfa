@@ -1,0 +1,8 @@
+{% extends "base.html" %}{% block title %}Create account | ShieldGate{% endblock %}
+{% block content %}<section class="auth-wrap"><div class="auth-aside"><div class="eyebrow">GET STARTED</div><h1>Secure your<br>sign-in.</h1><p>Create an account to experience the two-step login flow for this MFA demonstration.</p><div class="mini-note">✓ &nbsp; Passwords are stored as secure hashes, not plain text.</div></div>
+<div class="auth-card"><div class="auth-icon">＋</div><h2>Create account</h2><p class="muted">Use an email inbox you can access.</p>
+<form method="post"><label for="name">Full name</label><input id="name" name="name" placeholder="Your name" autocomplete="name" required>
+<label for="email">Email address</label><input id="email" name="email" type="email" placeholder="you@gmail.com" autocomplete="email" required>
+<label for="password">Password</label><input id="password" name="password" type="password" placeholder="At least 8 characters" minlength="8" autocomplete="new-password" required>
+<button class="btn primary full" type="submit">Create account <span>→</span></button></form>
+<p class="switch">Already registered? <a href="{{ url_for('login') }}">Log in</a></p></div></section>{% endblock %}

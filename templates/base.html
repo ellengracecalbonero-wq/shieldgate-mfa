@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}ShieldGate MFA{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <nav class="nav"><a class="brand" href="{{ url_for('index') }}"><span class="brand-icon">S</span> ShieldGate <small>MFA</small></a>
+    <div class="nav-links">
+      {% if session.get('user_id') %}<a href="{{ url_for('dashboard') }}">Dashboard</a>
+      {% else %}<a href="{{ url_for('login') }}">Log in</a><a class="nav-cta" href="{{ url_for('register') }}">Create account</a>{% endif %}
+    </div>
+  </nav>
+  <main class="page">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}<div class="alerts">{% for category, message in messages %}<div class="alert {{ category }}">{{ message }}</div>{% endfor %}</div>{% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+  <footer>Security in Distributed Computing · Multi-Factor Authentication Demo</footer>
+</body>
+</html>

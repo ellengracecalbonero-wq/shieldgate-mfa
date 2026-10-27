@@ -1,0 +1,7 @@
+{% extends "base.html" %}{% block title %}Log in | ShieldGate{% endblock %}
+{% block content %}<section class="auth-wrap"><div class="auth-aside"><div class="eyebrow">SHIELDGATE ACCESS</div><h1>Welcome<br>back.</h1><p>Sign in with your password, then verify your identity using the OTP sent to your Gmail inbox.</p><div class="mini-note">🔐 &nbsp; Your second step helps reduce the risk of password-only account access.</div></div>
+<div class="auth-card"><div class="auth-icon">↗</div><h2>Log in to your account</h2><p class="muted">Step 1 of 2 · Account credentials</p>
+<form method="post"><label for="email">Email address</label><input id="email" name="email" type="email" placeholder="you@gmail.com" autocomplete="email" required>
+<label for="password">Password</label><input id="password" name="password" type="password" placeholder="Enter your password" autocomplete="current-password" required>
+<button class="btn primary full" type="submit">Continue to verification <span>→</span></button></form>
+<p class="switch">New to ShieldGate? <a href="{{ url_for('register') }}">Create account</a></p><div class="secure-caption">● Protected by multi-factor authentication</div></div></section>{% endblock %}
